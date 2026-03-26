@@ -1,0 +1,29 @@
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
+import { config } from './config/index.ts';
+
+const app = express();
+
+app.use(helmet());
+app.use(cors({ 
+  origin: 'http://localhost:4000', 
+  credentials: true 
+}));
+app.use(express.json());
+app.use(cookieParser());
+
+mongoose.connect(config.mongoUri)
+  .then(() => console.log('✅ MongoDB connected successfully'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err.message));
+
+app.get('/health', (_req, res) => {
+  res.json({ status: 'TaskFlow backend is alive 🚀' });
+});
+
+app.listen(config.port, () => {
+  console.log(`🚀 Server running on http://localhost:${config.port}`);
+});
+
