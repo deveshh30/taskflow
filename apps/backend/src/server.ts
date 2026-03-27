@@ -3,7 +3,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-import { config } from './config/index.ts';
+import { config } from './config/index';
+import AuthRoutes from './routes/Authh.route.js';
+import { errorHandler } from './middelware/Error.middleware';
 
 const app = express();
 
@@ -14,6 +16,15 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+
+
+
+//ROUTES
+
+app.use("/api/auth" , AuthRoutes);
+
+app.use(errorHandler); //global error handler
+
 
 mongoose.connect(config.mongoUri)
   .then(() => console.log('✅ MongoDB connected successfully'))
