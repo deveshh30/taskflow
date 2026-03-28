@@ -3,7 +3,8 @@ import { User } from "../model/User.model";
 import { loginSchema, registerSchema } from "../schema/User.schema";
 import { success } from "zod";
 import bcrypt from 'bcryptjs';
-
+import jwt from 'jsonwebtoken';
+import { config } from "../config";
 export const registerUser = async (
   req: Request,
   res: Response,
@@ -66,6 +67,23 @@ export const loginUser = async (req:Request , res : Response , next : NextFuncti
         message: 'Invalid email/username or password' 
       });
     }
+
+    const token = jwt.sign(
+      {userId : user._id},
+      config.jwtSecret,
+      {expiresIn : '7d'}
+      
+    );
+
+    res.cookie('token' , token , {
+      httpOnly : true,
+      secure : false,
+      sameSite : 'strict',
+      maxAge : 7 * 24 * 60 * 60 * 1000
+
+    });
+
+    
 
     const userResponse = user.toObject();
     if ('password' in userResponse) {
