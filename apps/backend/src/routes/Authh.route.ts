@@ -1,6 +1,7 @@
 import { Request, Response, Router } from "express";
 import { loginUser, registerUser } from "../controller/auth.controller";
-import { protect } from "../middelware/Auth.middleware";
+import { protect } from "../middleware/Auth.middleware";
+import {  createWorkspace } from "../controller/Workspace.controller";
 
 const router = Router();
 

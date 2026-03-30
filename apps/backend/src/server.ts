@@ -5,7 +5,8 @@ import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import { config } from './config/index';
 import AuthRoutes from './routes/Authh.route.js';
-import { errorHandler } from './middelware/Error.middleware';
+import { errorHandler } from './middleware/Error.middleware';
+import workspaceRoute from './routes/Workspace.route';
 
 const app = express();
 
@@ -22,8 +23,8 @@ app.use(cookieParser());
 //ROUTES
 
 app.use("/api/auth" , AuthRoutes);
-
 app.use(errorHandler); //global error handler
+app.use("/api/workspace" , workspaceRoute)
 
 
 mongoose.connect(config.mongoUri)

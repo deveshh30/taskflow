@@ -1,6 +1,6 @@
 import { Request ,Response ,NextFunction } from "express";
 import jwt from 'jsonwebtoken';
-import { config } from "dotenv";
+import { config } from "../config/index";
 
 export interface AuthRequest extends Request {
   user?: { userId: string };
@@ -26,3 +26,10 @@ export const protect = ( req: AuthRequest, res: Response, next: NextFunction ) =
         throw error;
     }
 }
+
+
+
+// this protect middleware does 3 things 
+// 1) check if the cookie is valid and exists,
+// 2) verify that the token in not expired usinng jwt,
+// 3) if valid , attact the user's id to req.user so the route handler knnow who is makinng the request
