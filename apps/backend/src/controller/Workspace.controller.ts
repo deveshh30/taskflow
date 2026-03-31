@@ -35,7 +35,7 @@ export const createWorkspace = async (req: AuthRequest, res: Response) => {
 
 export const getWorkspace = async ( req : AuthRequest , res : Response) => {
     try {
-        const Workspaces = await workspace.find({
+        const workspaces = await Workspace.find({
             $or: [
             { owner: req.user?.userId },
             { members: req.user?.userId }
@@ -47,8 +47,8 @@ export const getWorkspace = async ( req : AuthRequest , res : Response) => {
 
         res.status(200).json({
         success: true,
-        count: Workspaces.length,
-        Workspaces
+        count: workspaces.length,
+        workspaces
         });
     } catch (error) {
         throw error;
@@ -88,3 +88,38 @@ export const getWorkspaceById = async (req: AuthRequest, res: Response) => {
     throw error;
   }
 };
+
+export const updateWorkspace = async ( req: AuthRequest, res: Response) => {
+  try {
+    const validatedData = createWorkspaceSchema.parse(req.body);
+
+    const workspace = await Workspace.findById(req.params.id);
+
+    if (!workspace) {
+      return res.status(404).json({
+        success: false,
+        message: "Workspace not found"
+      });
+    }
+
+    // Only owner can update
+    if (workspace.owner.toString() !== req.user?.userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Only workspace owner can update it"
+      });
+    }
+
+    workspace.name = validatedData.name;
+    await workspace.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Workspace updated successfully",
+      workspace
+    });
+
+  } catch (error) {
+    throw error;
+  }
+}
