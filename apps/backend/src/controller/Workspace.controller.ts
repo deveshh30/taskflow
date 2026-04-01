@@ -23,15 +23,12 @@ export const createWorkspace = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     throw error;     
   }
+  
+  // If we use normal Request type instead of AuthRequest, TypeScript will not know about 
+  // the req.user property. So when we write req.user?.userId, we will get a TypeScript error,
+  //  and even if we ignore it, we won't have type safety. More importantly, we won't reliably 
+  // know who the logged-in user is, which means we can't securely set the owner of the workspace.
 };
-
-
-// If we use normal Request type instead of AuthRequest, TypeScript will not know about 
-// the req.user property. So when we write req.user?.userId, we will get a TypeScript error,
-//  and even if we ignore it, we won't have type safety. More importantly, we won't reliably 
-// know who the logged-in user is, which means we can't securely set the owner of the workspace.
-
-
 
 export const getWorkspace = async ( req : AuthRequest , res : Response) => {
     try {
@@ -43,12 +40,34 @@ export const getWorkspace = async ( req : AuthRequest , res : Response) => {
         }).sort({ createdAt: -1 })
         .populate('owner', 'name email username')   
       .populate('members', 'name email username')
-      .select('name owner members createdAt updatedAt');
+      .select('name owner members createdAt updatedAt')
+      .lean();
+
+      const formattedWorkspaces = workspaces.map((workspace: any) => ({
+        workspaceId: workspace._id,           
+        userId: workspace.owner?._id || workspace.owner,   
+        name: workspace.name,
+        owner: typeof workspace.owner === 'object' && workspace.owner !== null ? {
+          userId: workspace.owner._id,
+          name: workspace.owner.name,
+          email: workspace.owner.email,
+          username: workspace.owner.username
+        } : { userId: workspace.owner },
+        members: Array.isArray(workspace.members) ? workspace.members.map((m: any) => 
+          typeof m === 'object' && m !== null ? {
+            userId: m._id,
+            name: m.name,
+            email: m.email,
+            username: m.username
+          } : { userId: m }
+        ) : [],
+        createdAt: workspace.createdAt,
+        updatedAt: workspace.updatedAt
+      }));
 
         res.status(200).json({
         success: true,
-        count: workspaces.length,
-        workspaces
+        workspaces: formattedWorkspaces
         });
     } catch (error) {
         throw error;
@@ -59,7 +78,30 @@ export const getWorkspaceById = async (req: AuthRequest, res: Response) => {
   try {
     const workspace = await Workspace.findById(req.params.id)
       .populate('owner', 'name email username')
-      .populate('members', 'name email username');
+      .populate('members', 'name email username')
+      .lean();
+
+      const formattedWorkspaces = workspaces.map((workspace: any) => ({
+        workspaceId: workspace._id,           
+        userId: workspace.owner?._id || workspace.owner,   
+        name: workspace.name,
+        owner: typeof workspace.owner === 'object' && workspace.owner !== null ? {
+          userId: workspace.owner._id,
+          name: workspace.owner.name,
+          email: workspace.owner.email,
+          username: workspace.owner.username
+        } : { userId: workspace.owner },
+        members: Array.isArray(workspace.members) ? workspace.members.map((m: any) => 
+          typeof m === 'object' && m !== null ? {
+            userId: m._id,
+            name: m.name,
+            email: m.email,
+            username: m.username
+          } : { userId: m }
+        ) : [],
+        createdAt: workspace.createdAt,
+        updatedAt: workspace.updatedAt
+      }));
 
     if (!workspace) {
       return res.status(404).json({
@@ -122,4 +164,6 @@ export const updateWorkspace = async ( req: AuthRequest, res: Response) => {
   } catch (error) {
     throw error;
   }
-}
+};
+
+
