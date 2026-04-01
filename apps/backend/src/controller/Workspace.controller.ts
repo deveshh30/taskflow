@@ -168,7 +168,7 @@ export const deleteWorkspace = async ( req: AuthRequest, res: Response) => {
   try {
     
     const workspaceId = req.params.id;
-    const userId = req.user.id;
+    const userId = req.user?.userId;
 
     const workspace = await Workspace.findById(workspaceId);
 
