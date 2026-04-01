@@ -81,28 +81,6 @@ export const getWorkspaceById = async (req: AuthRequest, res: Response) => {
       .populate('members', 'name email username')
       .lean();
 
-      const formattedWorkspaces = workspaces.map((workspace: any) => ({
-        workspaceId: workspace._id,           
-        userId: workspace.owner?._id || workspace.owner,   
-        name: workspace.name,
-        owner: typeof workspace.owner === 'object' && workspace.owner !== null ? {
-          userId: workspace.owner._id,
-          name: workspace.owner.name,
-          email: workspace.owner.email,
-          username: workspace.owner.username
-        } : { userId: workspace.owner },
-        members: Array.isArray(workspace.members) ? workspace.members.map((m: any) => 
-          typeof m === 'object' && m !== null ? {
-            userId: m._id,
-            name: m.name,
-            email: m.email,
-            username: m.username
-          } : { userId: m }
-        ) : [],
-        createdAt: workspace.createdAt,
-        updatedAt: workspace.updatedAt
-      }));
-
     if (!workspace) {
       return res.status(404).json({
         success: false,
@@ -110,7 +88,7 @@ export const getWorkspaceById = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // Only allow owner or members to view
+    //  owner or members can view
     const isOwnerOrMember = 
       workspace.owner.toString() === req.user?.userId || 
       workspace.members.some((m: any) => m._id.toString() === req.user?.userId);
@@ -122,9 +100,29 @@ export const getWorkspaceById = async (req: AuthRequest, res: Response) => {
       });
     }
 
+    // Format response to make IDs clear
+    const formattedWorkspace = {
+      workspaceId: workspace._id,
+      name: workspace.name,
+      owner: workspace.owner ? {
+        userId: workspace.owner._id,
+        name: workspace.owner.name,
+        email: workspace.owner.email,
+        username: workspace.owner.username
+      } : null,
+      members: workspace.members.map((m: any) => ({
+        userId: m._id,
+        name: m.name,
+        email: m.email,
+        username: m.username
+      })),
+      createdAt: workspace.createdAt,
+      updatedAt: workspace.updatedAt
+    };
+
     res.status(200).json({
       success: true,
-      workspace
+      workspace: formattedWorkspace
     });
   } catch (error) {
     throw error;
@@ -166,4 +164,30 @@ export const updateWorkspace = async ( req: AuthRequest, res: Response) => {
   }
 };
 
+export const deleteWorkspace = async ( req: AuthRequest, res: Response) => {
+  try {
+    const workspaceId = req.params.id;
+    const userId = req.user.id;
 
+    const workspace = await Workspace.findById(workspaceId);
+
+    if (!workspace) {
+      return res.status(404).json({ success: false, message: "Workshop not found" });
+    };
+
+    if (workspace.owner.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "You can only delete your own workshop" });
+    }
+
+    await Workshop.findByIdAndDelete(workshopId);
+
+    res.status(200).json({
+      success: true,
+      message: "Workshop deleted successfully"
+    });
+
+    
+  } catch (error) {
+    throw error;
+  }
+}
