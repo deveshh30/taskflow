@@ -166,6 +166,7 @@ export const updateWorkspace = async ( req: AuthRequest, res: Response) => {
 
 export const deleteWorkspace = async ( req: AuthRequest, res: Response) => {
   try {
+    
     const workspaceId = req.params.id;
     const userId = req.user.id;
 
@@ -179,14 +180,14 @@ export const deleteWorkspace = async ( req: AuthRequest, res: Response) => {
       return res.status(403).json({ success: false, message: "You can only delete your own workshop" });
     }
 
-    await Workshop.findByIdAndDelete(workshopId);
+    await Workspace.findByIdAndDelete(workspaceId);
 
     res.status(200).json({
       success: true,
       message: "Workshop deleted successfully"
     });
 
-    
+
   } catch (error) {
     throw error;
   }
