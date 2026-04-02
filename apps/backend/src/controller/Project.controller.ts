@@ -1,4 +1,5 @@
 import { Project } from "../model/Project.model";
+import { Workspace } from "../model/workspace.model";
 import { AuthRequest } from "../middleware/Auth.middleware";
 import { createProjectSchema } from "../schema/Project.schema";
 import { Response } from "express";
@@ -58,7 +59,7 @@ export const getProjectsByWorkspace = async ( req : AuthRequest , res : Response
     try {
 
         const {workspaceId} = req.params;
-        const workspace = await Workspace.findById(workspaceId);
+        const workspace = await Workspace?.findById(workspaceId);
 
         if(!workspace) {
             return res.status(404).json({

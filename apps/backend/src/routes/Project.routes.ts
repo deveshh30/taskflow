@@ -5,6 +5,6 @@ import { createProject, getProjectsByWorkspace } from "../controller/Project.con
 const createproject = Router();
 
 createproject.post('/' , protect , createProject);
-create.get('/workspace/:workspaceId', protect, getProjectsByWorkspace);
+createproject.get('/workspace/:workspaceId', protect, getProjectsByWorkspace);
 
 export default createproject;
