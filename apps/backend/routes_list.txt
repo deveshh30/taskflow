@@ -27,7 +27,8 @@ DELETE,/api/projects/:projectId,Delete project (only owner)
 TASK ROUTES
 
 POST,/api/projects/:projectId/tasks,Create new task inside a project
-GET,/api/projects/:projectId/tasks,Get all tasks in a project 
+router.put('/:projectId/tasks/:taskId', protect, updateTask);
+router.delete('/:projectId/tasks/:taskId/update', protect, deleteTask);
 
 
 

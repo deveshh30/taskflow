@@ -50,3 +50,106 @@ export const createTask = async (req: AuthRequest, res: Response) => {
     throw error;
   }
 };
+
+export const updateTask = async (req : AuthRequest , res: Response) => {
+  try {
+    const updateSchema = createTaskSchema.partial();
+    const {projectId , taskId} = req.params;
+
+    const validatedData = updateSchema.parse(req.body);
+
+    const task = await Task.findById(taskId);
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found"
+      });
+    }
+
+    if(task.project.toString() !== projectId){
+      return res.status(400).json({
+        success: false,
+        message: "Task does not belong to this project",
+    });
+  }
+
+  const project = await Project.findById(projectId);
+
+  const isProjectMember = project && (
+      project.owner.toString() === req.user?.userId ||
+      project.members.some((m: any) => m.toString() === req.user?.userId)
+    );
+
+
+const isTaskCreator = task.createdBy.toString() === req.user?.userId;
+
+    if (!isProjectMember && !isTaskCreator) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to update this task"
+      });
+    }
+
+    Object.assign(task, validatedData);
+    await task.save();
+
+    
+    await task.populate('assignee', 'name email username');
+    await task.populate('createdBy', 'name email username');
+
+    res.status(200).json({
+      success: true,
+      message: "Task updated successfully",
+      task
+    });
+
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteTask = async (req : AuthRequest , res: Response) => {
+  try {
+    const {projectId , taskId} = req.params;
+
+    const validatedData = updateSchema.parse(req.body);
+
+    const task = await.findByIdAndDelete(taskId);
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found"
+      });
+    }
+
+    if(task.project.toString() !== projectId){
+      return res.status(400).json({
+        success: false,
+        message: "Task does not belong to this project"
+      });
+    }
+
+    const project = await Project.findById(projectId);
+    const isProjectOwner = project && project.owner.toString() === req.user?.userId;
+    const isTaskCreator = task.createdBy.toString() === req.user?.userId;
+    
+    if (!isProjectOwner && !isTaskCreator) {
+      return res.status(403).json({
+        success: false,
+        message: "Only task creator or project owner can delete this task"
+      });
+    }
+
+    await Task.findByIdAndDelete(taskId);
+
+    res.status(200).json({
+      success: true,
+      message: "Task deleted successfully"
+    });
+
+  } catch (error) {
+    throw error;
+  }
+}
