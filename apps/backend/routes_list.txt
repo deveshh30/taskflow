@@ -1,0 +1,26 @@
+
+POST,/api/auth/register,Register new user
+POST,/api/auth/login,Login (email or username)
+
+
+WORKSPACE ROUTES
+
+POST,/api/workspaces,Create new workspace
+GET,/api/workspaces,Get all workspaces (owner + member)
+GET,/api/workspaces/:workspaceId,Get single workspace by ID
+PUT,/api/workspaces/:workspaceId,Update workspace name
+DELETE,/api/workspaces/:workspaceId,Delete workspace (only owner)
+
+
+PROJECT ROUTES
+
+POST,/api/projects/workspace/:workspaceId,Create project inside a workspace
+GET,/api/projects/workspace/:workspaceId,Get all projects in a workspace
+PUT,/api/projects/:projectId,Update project
+DELETE,/api/projects/:projectId,Delete project (only owner)
+
+
+TASK ROUTES
+
+POST,/api/projects/:projectId/tasks,Create new task inside a project
+GET,/api/projects/:projectId/tasks,Get all tasks in a project 
