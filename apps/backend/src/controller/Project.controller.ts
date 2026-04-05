@@ -126,7 +126,7 @@ export const updateProject = async ( req : AuthRequest , res : Response) => {
         const updateSchema = createProjectSchema.partial(); //this will make every aspect optional to update
         const {projectId} = req.params;
 
-        const validatedData = createProjectSchema.parse.(req.body);
+        const validatedData = updateSchema.parse(req.body);
 
         const project = await Project.findById(projectId);
 

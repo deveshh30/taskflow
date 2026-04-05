@@ -7,7 +7,7 @@ import { Project } from '../model/Project.model';
 export const createTask = async (req: AuthRequest, res: Response) => {
   try {
     const { projectId } = req.params;
-    const validatedData = createTask.parse(req.body);
+    const validatedData = createTaskSchema.parse(req.body);
 
     const project = await Project.findById(projectId);
     if (!project) {
