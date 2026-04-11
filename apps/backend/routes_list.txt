@@ -14,7 +14,7 @@ GET,/api/workspace,Get all workspaces (owner + member)
 GET,/api/workspaces/:workspaceId,Get single workspace by ID
 PUT,/api/workspaces/:workspaceId,Update workspace name
 DELETE,/api/workspaces/:workspaceId,Delete workspace (only owner)
-
+POST, /api/workspace/:workspaceId/addmember
 
 PROJECT ROUTES
 
@@ -22,6 +22,7 @@ POST,/api/projects/workspace/:workspaceId,Create project inside a workspace
 GET,/api/projects/workspace/:workspaceId,Get all projects in a workspace
 PUT,/api/projects/:projectId,Update project
 DELETE,/api/projects/:projectId,Delete project (only owner)
+POST, api.projects/:projectId/addmembers
 
 
 TASK ROUTES

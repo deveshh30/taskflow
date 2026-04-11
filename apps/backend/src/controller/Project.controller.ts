@@ -3,6 +3,7 @@ import { Workspace } from "../model/workspace.model";
 import { AuthRequest } from "../middleware/Auth.middleware";
 import { createProjectSchema } from "../schema/Project.schema";
 import { Response } from "express";
+import { User } from "../model/User.model";
 
 
 export const createProject = async (req : AuthRequest , res : Response) => {
@@ -215,4 +216,92 @@ export const deleteProject = async ( req: AuthRequest , res : Response) => {
   } catch (error) {
     throw error;
   }
+};
+
+export const addMemberToProject = async ( req: AuthRequest , res : Response) => {
+//1. Get projectId from req.params and userId from req.body
+//2. Check if the project exists
+//3. Check if the current logged-in user is the project owner (not workspace owner)
+//4. Check if the user to add exists in the system
+//5. Check if the user is a member of the workspace (yes, this is important)
+//6. Check if the user is already a member of the project
+//7. Add the user to project.members array
+//8. Save the project and return success
+
+    try {
+        const {userId} = req.body;
+        const {projectId} = req.params;
+
+        const project= await Project.findById(projectId);
+
+        if(!project) {
+           return res.status(404).json({
+                success: false,
+                message: "project not found"
+            }); 
+        }
+
+        if(project.owner.toString() !== req.user?.userId) {
+          return res.status(403).json({
+                success: false,
+                message: "Only project owner can add members"
+            });  
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+              return res.status(404).json({
+                success: false,
+                message: "User not found"
+              });
+        }
+
+        const workspace = await Workspace.findById(project.workspace);
+
+        if (!workspace) {
+        return res.status(404).json({
+            success: false,
+            message: "Workspace not found"
+        });
+        }
+
+        const isWorkspaceMember = 
+        workspace.owner.toString() === userId || 
+        workspace.members.some((m: any) => m.toString() === userId);
+
+        if (!isWorkspaceMember) {
+        return res.status(400).json({
+            success: false,
+            message: "User must be a member of the workspace first"
+        });
+        }
+
+        const isAlreadyMember = project.members.some(
+        (memberId: any) => memberId.toString() === userId
+        );
+
+        if (isAlreadyMember) {
+        return res.status(400).json({
+            success: false,
+            message: "User is already a member of this project"
+        });
+        }
+
+        project.members.push(userId);
+        await project.save();
+
+
+        res.status(200).json({
+        success: true,
+        message: "Member added successfully",
+        project: {
+            id: project._id,
+            name: project.name,
+            members: project.members
+      }
+    });
+        
+    } catch (error) {
+        throw error;
+    }
 };
