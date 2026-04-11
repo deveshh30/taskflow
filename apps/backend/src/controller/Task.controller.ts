@@ -251,7 +251,7 @@ export const getTaskByStatus = async ( req : AuthRequest , res : Response) => {
     .populate("createdBy", "name email username")
     .lean();
 
-    const kanban = tasks.reduce((acc: any, task: any) => {
+    const kanban = tasks.reduce((acc: any, task: any) => { //reduce is used here because it iterates over the array of tasks annd present all task with specific status
       const status = task.status || "todo";
       if (!acc[status]) acc[status] = [];
 

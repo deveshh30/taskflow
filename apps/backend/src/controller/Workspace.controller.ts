@@ -173,11 +173,11 @@ export const deleteWorkspace = async ( req: AuthRequest, res: Response) => {
     const workspace = await Workspace.findById(workspaceId);
 
     if (!workspace) {
-      return res.status(404).json({ success: false, message: "Workshop not found" });
+      return res.status(404).json({ success: false, message: "Workspace not found" });
     };
 
     if (workspace.owner.toString() !== userId) {
-      return res.status(403).json({ success: false, message: "You can only delete your own workshop" });
+      return res.status(403).json({ success: false, message: "only owner can only delete the workshop" });
     }
 
     await Workspace.findByIdAndDelete(workspaceId);
@@ -192,3 +192,67 @@ export const deleteWorkspace = async ( req: AuthRequest, res: Response) => {
     throw error;
   }
 }
+
+export const addMemberToWorkspace = async ( req : AuthRequest , res : Response) => {
+//1. get workspaceid
+//2. check workspace exist or not
+//3. allow only worskapce owner to add member
+//4. Check if the user to add exists in the system
+//5. Check if the user is already a member of the workspace
+//6. Add the user to the members array
+//7. Save the workspace and return success
+
+  try {
+    const { workspaceId } = req.params;
+    const { userId } = req.body;
+
+    const workspace = await Workspace.findById(workspaceId);
+    if (!workspace) {
+      return res.status(404).json({
+        success: false,
+        message: "Workspace not found"
+      });
+    }
+
+    if (workspace.owner.toString() !== req.user?.userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Only workspace owner can add members"
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    const isAlreadyMember = workspace.members.some(
+      (memberId: any) => memberId.toString() === userId
+    );
+
+    if (isAlreadyMember) {
+      return res.status(400).json({
+        success: false,
+        message: "User is already a member of this workspace"
+      });
+    }
+
+    workspace.members.push(userId);
+    await workspace.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Member added successfully",
+      workspace: {
+        id: workspace._id,
+        name: workspace.name,
+        members: workspace.members
+      }
+    });
+  } catch (error) {
+    throw error;
+  }
+};
