@@ -219,3 +219,81 @@ export const getTasksByProject = async (req: AuthRequest, res: Response) => {
     throw error;
   }
 };
+
+export const getTaskByStatus = async ( req : AuthRequest , res : Response) => {
+
+  try {
+    const { projectId} = req.params;
+
+    const project = await Project.findById(projectId);
+
+    if(!project) {
+      return res.status(404).json({
+        success : false,
+        message : "project not found",
+      });
+    }
+
+    const isAuthorized = project.owner.toString() === req.user?.userId ||
+    project.members.some( (m:any) => m.toString() === req.user?.userId );
+
+
+    if(!isAuthorized) {
+      return res.status(403).json({
+        success : false,
+        message : " you dont have access to this project",
+      });
+    }
+
+    const tasks = await Task.find({project : projectId})
+    .sort({createdAt : -1})
+    .populate("assignee", "name email username")
+    .populate("createdBy", "name email username")
+    .lean();
+
+    const kanban = tasks.reduce((acc: any, task: any) => {
+      const status = task.status || "todo";
+      if (!acc[status]) acc[status] = [];
+
+      acc[status].push({
+        taskId: task._id,
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        dueDate: task.dueDate,
+        assignee: task.assignee ? {
+          userId: task.assignee._id,
+          name: task.assignee.name,
+          email: task.assignee.email,
+        } : null,
+        createdBy: {
+          userId: task.createdBy._id,
+          name: task.createdBy.name,
+        },
+        createdAt: task.createdAt,
+        updatedAt: task.updatedAt,
+      });
+
+      return acc;
+    }, {});
+
+    res.status(200).json({
+      success: true,
+      kanban
+    });
+
+
+  } catch (error) {
+    throw error;
+  }
+
+//1. Get projectId from req.params
+//2. Check if project exists
+//3. Check if current user is owner or member of the project
+//4. Fetch all tasks belonging to that projectId
+//5. Group the tasks by status (todo, in-progress, review, done)
+//6. Format each task nicely (taskId, userId, etc.)
+//7. Return a clean kanban object
+}
+
