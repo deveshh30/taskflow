@@ -10,7 +10,7 @@ POST,/api/auth/login,Login (email or username)
 WORKSPACE ROUTES
 
 POST,/api/workspaces,Create new workspace
-GET,/api/workspaces,Get all workspaces (owner + member)
+GET,/api/workspace,Get all workspaces (owner + member)
 GET,/api/workspaces/:workspaceId,Get single workspace by ID
 PUT,/api/workspaces/:workspaceId,Update workspace name
 DELETE,/api/workspaces/:workspaceId,Delete workspace (only owner)
@@ -33,5 +33,9 @@ router.delete('/:projectId/tasks/:taskId/update', protect, deleteTask);
 
 
 
-WORKSPACE_ID : 69cc28e93d3bcd041523f0a8
+WORKSPACE_ID : 69cc28e93d3bcd041523f0a8 ,  69cab528732962505389d804
 PROJECT_ID : 69cec36ee9ef6ce305340ffc
+USER_ID : 69c6e94bcc0459bbf975e02a (devesh30gupta@gmail.com )
+USER2_ID : 69da7da47a0f6895e69fc336 (mansi09gupta@gmail.com)
+
+RUN PROJECT = pnpm turbo dev --filter=backend

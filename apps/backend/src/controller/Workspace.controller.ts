@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { Workspace } from '../model/workspace.model.js';
 import { createWorkspaceSchema } from '../schema/Workspace.schema.js';
 import { AuthRequest } from '../middleware/Auth.middleware.js';
+import { User } from '../model/User.model.js';
 
 export const createWorkspace = async (req: AuthRequest, res: Response) => {
   try {
