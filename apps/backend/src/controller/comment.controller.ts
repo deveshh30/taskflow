@@ -4,6 +4,7 @@ import { createCommentSchema } from "../schema/Comment.schema";
 import { Task } from "../model/Task.model";
 import { Project } from "../model/Project.model";
 import { Comment } from "../model/Comment.model";
+import { io } from "../server";
 
 export const addComment = async (req : AuthRequest , res : Response) => {
 
@@ -54,6 +55,18 @@ export const addComment = async (req : AuthRequest , res : Response) => {
 
         });
         await comment.save();
+
+        io.to(`task:${taskId}`).emit('new-comment', {
+            commentId: comment._id,
+            content: comment.content,
+            author: {
+                userId: comment.author._id,
+                name: comment.author.name,
+                email: comment.author.email,
+                username: comment.author.username
+            },
+            createdAt: comment.createdAt
+            });
 
         await comment.populate('author' , 'name email userName');
 
