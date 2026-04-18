@@ -8,6 +8,7 @@ import AuthRoutes from './routes/Authh.route.js';
 import { errorHandler } from './middleware/Error.middleware';
 import workspaceRoute from './routes/Workspace.route';
 import createproject from './routes/Project.routes';
+import addcomment from './routes/comment.route'
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/api/auth" , AuthRoutes);
 app.use(errorHandler); //global error handler
 app.use("/api/workspace" , workspaceRoute)
 app.use('/api/projects', createproject);
+app.use('/api/comment' , addcomment)
 
 
 mongoose.connect(config.mongoUri)
