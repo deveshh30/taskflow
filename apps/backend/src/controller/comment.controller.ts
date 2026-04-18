@@ -189,3 +189,62 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
         throw error;
     }
 };
+
+export const getCommentsByTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const { projectId, taskId } = req.params;
+
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found"
+      });
+    }
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found"
+      });
+    }
+
+    const isAuthorized = 
+      project.owner.toString() === req.user?.userId ||
+      project.members.some((m: any) => m.toString() === req.user?.userId);
+
+    if (!isAuthorized) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have access to this project"
+      });
+    }
+
+    const comments = await Comment.find({ task: taskId })
+      .sort({ createdAt: -1 })
+      .populate("author", "name email username")
+      .lean();
+
+    const formattedComments = comments.map(comment => ({
+      commentId: comment._id,
+      content: comment.content,
+      author: {
+        userId: comment.author._id,
+        name: comment.author.name,
+        email: comment.author.email,
+        username: comment.author.username
+      },
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt
+    }));
+
+    res.status(200).json({
+      success: true,
+      count: formattedComments.length,
+      comments: formattedComments
+    });
+  } catch (error) {
+    throw error;
+  }
+};
