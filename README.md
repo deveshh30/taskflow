@@ -1,159 +1,140 @@
-# Turborepo starter
+# TaskFlow
 
-This Turborepo starter is maintained by the Turborepo core team.
+A modern **Project Management SaaS** (Linear + Notion hybrid) built with clean architecture.
 
-## Using this example
+## Overview
 
-Run the following command:
+TaskFlow is a collaborative project management tool that helps teams organize work using **Workspaces → Projects → Tasks** with real-time comments and Kanban support.
 
-```sh
-npx create-turbo@latest
-```
+**Core Hierarchy:**  
+**User → Workspace → Project → Task → Comment**
 
-## What's inside?
+---
 
-This Turborepo includes the following packages/apps:
+## Tech Stack
 
-### Apps and Packages
+### Backend
+- **Node.js + Express + TypeScript**
+- **MongoDB + Mongoose**
+- **Zod** (API validation)
+- **JWT + httpOnly cookies** (Authentication)
+- **Socket.io** (Real-time comments)
+- **Turborepo** (Monorepo)
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### Frontend (In Progress)
+- Next.js 15 (App Router)
+- React 19 + TypeScript
+- Tailwind + shadcn/ui
+- TanStack Query + Zustand
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+---
 
-### Utilities
+## Current Progress (As of Now)
 
-This Turborepo has some additional tools already setup for you:
+### ✅ Completed Features
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+**Authentication**
+- User Registration & Login (supports email or username)
+- JWT Authentication with secure httpOnly cookies
+- Protected routes middleware (`protect`)
 
-### Build
+**Workspace Module**
+- Create Workspace
+- Get All Workspaces (owner + member)
+- Get Single Workspace
+- Update Workspace
+- Add Member to Workspace
 
-To build all apps and packages, run the following command:
+**Project Module**
+- Create Project (nested under Workspace)
+- Get All Projects in a Workspace
+- Get Single Project
+- Update & Delete Project (owner only)
+- Add Member to Project
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+**Task Module**
+- Create Task (nested under Project)
+- Update & Delete Task
+- Get All Tasks in a Project
+- Kanban View (`GET /kanban`) — tasks grouped by status
 
-```sh
-cd my-turborepo
-turbo build
-```
+**Comments**
+- Add Comment on Task
+- Get All Comments on Task
+- **Real-time comments** using Socket.io (live updates)
 
-Without global `turbo`, use your package manager:
+**Architecture Highlights**
+- Clean folder structure with separation of concerns
+- Proper authorization (owner vs member checks)
+- Clean API responses (`id`, `userId`, `projectId`, etc.)
+- Comprehensive error handling
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+---
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Backend Folder Structure
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+```bash
+apps/backend/src/
+├── config/
+├── controllers/
+│   ├── auth.controller.ts
+│   ├── workspace.controller.ts
+│   ├── project.controller.ts
+│   ├── task.controller.ts
+│   └── comment.controller.ts
+├── middleware/
+│   ├── auth.middleware.ts
+│   └── error.middleware.ts
+├── models/
+│   ├── User.model.ts
+│   ├── workspace.model.ts
+│   ├── Project.model.ts
+│   ├── Task.model.ts
+│   └── Comment.model.ts
+├── routes/
+├── schemas/
+├── server.ts
+└── utils/
+Key Routes (Backend)
+Auth
+POST /api/auth/register
+POST /api/auth/login
+Workspace
+POST /api/workspaces
+GET /api/workspaces
+GET /api/workspaces/:workspaceId
+PUT /api/workspaces/:workspaceId
+POST /api/workspaces/:workspaceId/members
+Project
+POST /api/projects/workspace/:workspaceId
+GET /api/projects/workspace/:workspaceId
+PUT /api/projects/:projectId
+DELETE /api/projects/:projectId
+POST /api/projects/:projectId/addmembers
+Task & Comments
+POST /api/projects/:projectId/tasks
+GET /api/projects/:projectId/getTasksByProject
+PUT /api/projects/:projectId/tasks/:taskId/update
+DELETE /api/projects/:projectId/tasks/:taskId/delete
+GET /api/projects/:projectId/kanban
+POST /api/projects/:projectId/tasks/:taskId/comments
+GET /api/projects/:projectId/tasks/:taskId/comments
+Next Steps (TODO)
+Rich text editor for comments and descriptions
+File attachments (Cloudinary)
+Full Frontend with Next.js 15 + shadcn/ui
+Advanced real-time features
+Notifications & Activity feed
+Search & Filtering
+Testing & Deployment
+How to Run
+# Install dependencies
+pnpm install
 
-```sh
-turbo build --filter=docs
-```
+# Start backend
+pnpm turbo dev --filter=backend
 
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+# Start frontend (when ready)
+pnpm turbo dev --filter=frontend
+Built with ❤️ using clean architecture & modern best practices.
+Status: Backend Core Complete | Frontend Setup Started
