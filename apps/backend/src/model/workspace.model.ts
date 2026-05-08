@@ -1,6 +1,13 @@
 import mongoose from 'mongoose';
 
-const workspaceSchema = new mongoose.Schema({
+export interface IWorkspace {
+     name: string
+    owner: mongoose.Types.ObjectId
+    members: mongoose.Types.ObjectId[]
+    
+}
+
+const workspaceSchema = new mongoose.Schema<IWorkspace>({
   name: { 
     type: String, 
     required: true, 

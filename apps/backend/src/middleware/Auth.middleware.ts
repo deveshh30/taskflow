@@ -2,11 +2,8 @@ import { Request ,Response ,NextFunction } from "express";
 import jwt from 'jsonwebtoken';
 import { config } from "../config/index";
 
-export interface AuthRequest extends Request {
-  user?: { userId: string };
-}
 
-export const protect = ( req: AuthRequest, res: Response, next: NextFunction ) => {
+export const protect = async ( req: Request, res: Response, next: NextFunction ) => {
     try {
         const token = req.cookies.token;
 
@@ -23,7 +20,7 @@ export const protect = ( req: AuthRequest, res: Response, next: NextFunction ) =
 
     
     } catch (error) {
-        throw error;
+        next(error);
     }
 }
 

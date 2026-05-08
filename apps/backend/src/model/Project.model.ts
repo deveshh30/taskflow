@@ -1,6 +1,18 @@
 import mongoose from "mongoose";
 
-const projectSchema = new mongoose.Schema({
+export interface IProject {
+    name: string
+    owner: mongoose.Types.ObjectId
+    members: mongoose.Types.ObjectId[]
+    description?: string        
+    status?: string
+    priority?: string
+    deadline?: Date
+    workspace: mongoose.Types.ObjectId
+}
+
+
+const projectSchema = new mongoose.Schema<IProject>({
   name: { 
     type: String, 
     required: true, 

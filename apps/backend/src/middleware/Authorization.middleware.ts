@@ -2,11 +2,8 @@ import { Request , Response , NextFunction } from "express";
 import { Workspace } from "../model/workspace.model";
 import { Project } from "../model/Project.model";
 
-export interface AuthRequest extends Request{
-    user? : {userId : string};
-}
 
-export const requireWorkspaceMember = async (req : AuthRequest , res : Response , next : NextFunction) => {
+export const requireWorkspaceMember = async (req : Request , res : Response , next : NextFunction) => {
     try {
         const {workspaceId} = req.params ;
         const workspace = await Workspace.findById(workspaceId);
@@ -36,7 +33,7 @@ export const requireWorkspaceMember = async (req : AuthRequest , res : Response 
     }
 };
 
-export const requireProjectMember = async (req : AuthRequest , res : Response , next : NextFunction) => {
+export const requireProjectMember = async (req : Request , res : Response , next : NextFunction) => {
     try {
 
         const { projectId } = req.params ; 
@@ -65,4 +62,4 @@ export const requireProjectMember = async (req : AuthRequest , res : Response , 
     } catch (error) {
      next(error);   
     }
-}
+};
