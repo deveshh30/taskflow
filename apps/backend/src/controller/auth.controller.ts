@@ -5,11 +5,8 @@ import { success } from "zod";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { config } from "../config";
-export const registerUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+
+export const registerUser = async ( req: Request, res: Response, next: NextFunction ) => {
     try {
     const validatedData = registerSchema.parse(req.body);
 
@@ -96,6 +93,6 @@ export const loginUser = async (req:Request , res : Response , next : NextFuncti
       user: userResponse
     });
   } catch (error) {
-    throw error;
+    next(error);
   }
 }
