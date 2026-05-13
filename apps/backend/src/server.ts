@@ -11,12 +11,17 @@ import createproject from './routes/Project.routes';
 import addcomment from './routes/comment.route';
 import http from 'http';
 import { Server } from 'socket.io';
-import { jwt } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+import morgan from 'morgan';
 
 
 const app = express();
 
+
+
 const server = http.createServer(app);
+
+app.use(morgan('dev'));
 
 export const io = new Server(server, {
   cors: {
@@ -27,7 +32,24 @@ export const io = new Server(server, {
 });
 
 
-g
+io.use((socket , next) => {
+  const token = socket.handshake.auth.token;
+
+  if(!token) {
+    return next (new Error ('user is not authenticated'));
+  }
+  try {
+    const decoded = jwt.verify(token , config.jwtSecret ) as {userId : string};
+
+    socket.data.user = decoded
+    next();
+
+
+  } catch (error) {
+    next(new Error('Invalid token'))
+  }
+
+})
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
