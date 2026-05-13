@@ -11,6 +11,7 @@ import createproject from './routes/Project.routes';
 import addcomment from './routes/comment.route';
 import http from 'http';
 import { Server } from 'socket.io';
+import { jwt } from 'jsonwebtoken';
 
 
 const app = express();
@@ -24,6 +25,9 @@ export const io = new Server(server, {
     credentials: true
   }
 });
+
+
+g
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -43,7 +47,7 @@ io.on('connection', (socket) => {
 
 app.use(helmet());
 app.use(cors({ 
-  origin: 'http://localhost:4000', 
+  origin: 'http://localhost:3000', //allow to take request from this port only i.e frontend
   credentials: true 
 }));
 app.use(express.json());
@@ -54,10 +58,10 @@ app.use(cookieParser());
 //ROUTES
 
 app.use("/api/auth" , AuthRoutes);
-app.use(errorHandler); //global error handler
 app.use("/api/workspace" , workspaceRoute)
 app.use('/api/projects', createproject);
 app.use('/api/comment' , addcomment)
+app.use(errorHandler); //global error handler
 
 
 mongoose.connect(config.mongoUri)
